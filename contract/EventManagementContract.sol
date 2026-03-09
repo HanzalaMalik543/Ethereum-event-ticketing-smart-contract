@@ -26,7 +26,18 @@ contract EventContract{
     function buyTicket(uint id,uint quantity) external payable{
         require(events[id].date!=0,"Error! Event does not exist.");
         require(block.timestamp<events[id].date,"Event has already ended.");
+        Event storage _event = events[id];
+        require(msg.value == (_event.price*quantity),"Not enough Ether");
+        require(_event.ticketRemain>=quantity,"Not enough tickets!");
+        _event.ticketRemain -= quantity;
+        tickets[msg.sender][id]+=quantity;
     }
 
-
+    function transferTicket(uint id,uint quantity,address to)external{
+        require(events[id].date!=0,"Error! Event does not exist.");
+        require(block.timestamp<events[id].date,"Event has already ended.");
+        require(tickets[msg.sender][id]>=quantity,"Not enough tickets.");
+        tickets[msg.sender][id]-=quantity;
+        tickets[to][id]+=quantity;
+    }
 }
